@@ -29,29 +29,31 @@ export type CloudBackupData = {
 export { supabase };
 
 export const ensureBackupTableExistsHelp = `
-1) به Supabase بروید
-2) SQL Editor را باز کنید
-3) New query بزنید
-4) این دستور را اجرا کنید:
-
-create table if not exists app_backups (
-  id uuid primary key default gen_random_uuid(),
-  backup_key text unique not null,
-  payload jsonb not null,
-  updated_at timestamptz default now()
-);
+داده‌های ابری اکنون فقط برای حساب کاربری شما ذخیره می‌شود.
+برای ذخیره یا بازیابی باید وارد حساب خود شده باشید؛
+هیچ کاربر دیگری به اطلاعات شما دسترسی ندارد.
 `;
 
+const getCurrentUserId = async (): Promise<string> => {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    throw new Error('برای استفاده از فضای ابری ابتدا وارد حساب کاربری شوید.');
+  }
+  return data.user.id;
+};
+
 export const saveBackupToSupabase = async (backupData: CloudBackupData) => {
+  const userId = await getCurrentUserId();
   const { error } = await supabase
     .from('app_backups')
     .upsert(
       {
+        user_id: userId,
         backup_key: APP_CONFIG.backupKey,
         payload: backupData as unknown as never,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: 'backup_key' }
+      { onConflict: 'user_id,backup_key' }
     );
 
   if (error) {
@@ -60,9 +62,11 @@ export const saveBackupToSupabase = async (backupData: CloudBackupData) => {
 };
 
 export const loadBackupFromSupabase = async (): Promise<CloudBackupData | null> => {
+  const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from('app_backups')
     .select('payload')
+    .eq('user_id', userId)
     .eq('backup_key', APP_CONFIG.backupKey)
     .maybeSingle();
 
