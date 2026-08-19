@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { Contract, PartItem, ServiceMonth, BreakdownRecord } from '../types';
 import { APP_CONFIG } from '../config';
 
@@ -26,7 +26,7 @@ export type CloudBackupData = {
   parts: PartItem[];
 };
 
-export const supabase = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabasePublishableKey);
+export { supabase };
 
 export const ensureBackupTableExistsHelp = `
 1) به Supabase بروید
