@@ -15,15 +15,28 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    let isGuest = false;
     try {
-      setGuest(window.localStorage.getItem(GUEST_KEY) === '1');
+      isGuest = window.localStorage.getItem(GUEST_KEY) === '1';
     } catch {
-      setGuest(false);
+      isGuest = false;
     }
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    setGuest(isGuest);
+
+    // در حالت مهمان اصلاً به Supabase وابسته نیستیم تا بدون اینترنت هم باز شود
+    if (isGuest) {
       setReady(true);
-    });
+      return;
+    }
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch(() => {
+        /* اگر Supabase در دسترس نبود، همچنان صفحه ورود را نشان بده */
+      })
+      .finally(() => setReady(true));
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
