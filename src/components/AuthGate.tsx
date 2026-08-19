@@ -29,7 +29,10 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo:
+              window.location.origin + (window.location.pathname || '/'),
+          },
         });
         if (error) throw error;
         setMessage('ثبت‌نام انجام شد. اگر تأیید ایمیل فعال باشد، لینک تأیید برایتان ارسال شده است.');
