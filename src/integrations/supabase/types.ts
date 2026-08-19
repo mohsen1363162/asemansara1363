@@ -20,18 +20,21 @@ export type Database = {
           id: string
           payload: Json
           updated_at: string
+          user_id: string
         }
         Insert: {
           backup_key: string
           id?: string
           payload: Json
           updated_at?: string
+          user_id: string
         }
         Update: {
           backup_key?: string
           id?: string
           payload?: Json
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
