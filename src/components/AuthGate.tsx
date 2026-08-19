@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+const GUEST_KEY = 'service-app-guest-mode';
+
 export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const [guest, setGuest] = useState<boolean>(false);
   const [ready, setReady] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,6 +15,11 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    try {
+      setGuest(window.localStorage.getItem(GUEST_KEY) === '1');
+    } catch {
+      setGuest(false);
+    }
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setReady(true);
@@ -19,6 +27,15 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  const enterGuest = () => {
+    try {
+      window.localStorage.setItem(GUEST_KEY, '1');
+    } catch {
+      /* ignore */
+    }
+    setGuest(true);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +65,7 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return <div className="min-h-screen bg-slate-50" />;
   }
 
-  if (!session) {
+  if (!session && !guest) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4" dir="rtl">
         <form onSubmit={submit} className="w-full max-w-sm bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
@@ -87,6 +104,21 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
           >
             {mode === 'signin' ? 'حساب ندارید؟ ثبت‌نام کنید' : 'حساب دارید؟ وارد شوید'}
           </button>
+          <div className="flex items-center gap-2 pt-1">
+            <span className="flex-1 h-px bg-slate-200" />
+            <span className="text-[11px] text-slate-400">یا</span>
+            <span className="flex-1 h-px bg-slate-200" />
+          </div>
+          <button
+            type="button"
+            onClick={enterGuest}
+            className="w-full border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl py-2 text-sm font-semibold"
+          >
+            ورود به عنوان مهمان (بدون ثبت‌نام)
+          </button>
+          <p className="text-[11px] text-slate-400 leading-5">
+            در حالت مهمان اطلاعات شما فقط روی همین مرورگر ذخیره می‌شود و به فضای ابری منتقل نمی‌شود.
+          </p>
           {message && <p className="text-xs text-rose-600 whitespace-pre-line">{message}</p>}
         </form>
       </div>
