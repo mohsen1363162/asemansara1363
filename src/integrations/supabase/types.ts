@@ -14,7 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_backups: {
+        Row: {
+          backup_key: string
+          id: string
+          payload: Json
+          updated_at: string
+        }
+        Insert: {
+          backup_key: string
+          id?: string
+          payload: Json
+          updated_at?: string
+        }
+        Update: {
+          backup_key?: string
+          id?: string
+          payload?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
