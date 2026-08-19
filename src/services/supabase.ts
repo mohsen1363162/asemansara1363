@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { Contract, PartItem, ServiceMonth, BreakdownRecord } from '../types';
 import { APP_CONFIG } from '../config';
 
@@ -26,7 +26,7 @@ export type CloudBackupData = {
   parts: PartItem[];
 };
 
-export const supabase = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabasePublishableKey);
+export { supabase };
 
 export const ensureBackupTableExistsHelp = `
 1) به Supabase بروید
@@ -44,11 +44,11 @@ create table if not exists app_backups (
 
 export const saveBackupToSupabase = async (backupData: CloudBackupData) => {
   const { error } = await supabase
-    .from(APP_CONFIG.backupTableName)
+    .from('app_backups')
     .upsert(
       {
         backup_key: APP_CONFIG.backupKey,
-        payload: backupData,
+        payload: backupData as unknown as never,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'backup_key' }
@@ -61,7 +61,7 @@ export const saveBackupToSupabase = async (backupData: CloudBackupData) => {
 
 export const loadBackupFromSupabase = async (): Promise<CloudBackupData | null> => {
   const { data, error } = await supabase
-    .from(APP_CONFIG.backupTableName)
+    .from('app_backups')
     .select('payload')
     .eq('backup_key', APP_CONFIG.backupKey)
     .maybeSingle();
@@ -70,5 +70,5 @@ export const loadBackupFromSupabase = async (): Promise<CloudBackupData | null> 
     throw error;
   }
 
-  return (data?.payload as CloudBackupData) || null;
+  return (data?.payload as unknown as CloudBackupData) || null;
 };

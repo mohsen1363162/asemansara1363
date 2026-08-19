@@ -107,6 +107,7 @@ export function App() {
   const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<number | undefined>(undefined);
   const [genericModalData, setGenericModalData] = useState<{ title: string; type: string } | null>(null);
   const [cloudSyncStatus, setCloudSyncStatus] = useState('');
+  const [cloudLoaded, setCloudLoaded] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -209,6 +210,49 @@ export function App() {
       console.error('خطا در ذخیره بخش فعال:', error);
     }
   }, [activeSection]);
+
+  // بارگذاری خودکار داده‌ها از دیتابیس ابری هنگام باز شدن برنامه
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const backup = await loadBackupFromSupabase();
+        if (!cancelled && backup) {
+          restoreBackupData(backup as AppBackupData);
+          setCloudSyncStatus('✅ اطلاعات از دیتابیس ابری بارگذاری شد.');
+        }
+      } catch (error) {
+        console.error('خطا در بارگذاری ابری:', error);
+        setCloudSyncStatus('❌ اتصال به دیتابیس ابری برقرار نشد.');
+      } finally {
+        if (!cancelled) setCloudLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ذخیره خودکار در دیتابیس ابری با هر تغییر
+  useEffect(() => {
+    if (!cloudLoaded) return;
+    const timer = setTimeout(() => {
+      saveBackupToSupabase({
+        version: '1.0.0',
+        exportedAt: new Date().toISOString(),
+        isDarkMode,
+        contracts,
+        currentContractId: currentContract.id,
+        activeSection,
+        contractDataMap,
+        parts,
+      }).catch((error) => {
+        console.error('خطا در ذخیره ابری:', error);
+      });
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [cloudLoaded, isDarkMode, contracts, currentContract, activeSection, contractDataMap, parts]);
 
   const exportAllData = () => {
     const backupData: AppBackupData = {
