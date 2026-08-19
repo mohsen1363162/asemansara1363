@@ -1,5 +1,6 @@
 import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import App from "@/App";
+import { AuthGate } from "@/components/AuthGate";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,7 +26,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <ClientOnly fallback={<div className="min-h-screen bg-background" />}>
-      <App />
+      <AuthGate>
+        <App />
+      </AuthGate>
     </ClientOnly>
   );
 }
