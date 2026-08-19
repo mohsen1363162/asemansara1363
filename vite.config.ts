@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // Allow the live-preview host (e.g. *.e2b.app) so the app loads in the sandbox preview.
+      allowedHosts: true,
+    },
+  },
 });
