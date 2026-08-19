@@ -62,7 +62,7 @@ const STORAGE_KEYS = {
 export function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [contracts, setContracts] = useState<Contract[]>(initialContracts);
-  const [currentContract, setCurrentContract] = useState<Contract>(initialContracts[0]);
+  const [currentContract, setCurrentContract] = useState<Contract>(initialContracts[0]!);
   const [activeSection, setActiveSection] = useState<string>('service');
 
   const [contractDataMap, setContractDataMap] = useState<Record<string, ContractScopedData>>({
@@ -312,9 +312,9 @@ export function App() {
     setContractDataMap((prev) => ({
       ...prev,
       [currentContract.id]: {
-        ...prev[currentContract.id],
+        ...(prev[currentContract.id] ?? { serviceMonths: [], breakdowns: [], payments: [] }),
         ...patch,
-      },
+      } as ContractScopedData,
     }));
   };
 
@@ -580,7 +580,7 @@ export function App() {
           contract={currentContract} 
           payments={payments} 
           selectedMonth={selectedPaymentMonth}
-          defaultAmount={selectedPaymentAmount}
+          {...(selectedPaymentAmount !== undefined ? { defaultAmount: selectedPaymentAmount } : {})}
           onClose={() => {
             setActiveModal(null);
             setSelectedPaymentMonth(null);

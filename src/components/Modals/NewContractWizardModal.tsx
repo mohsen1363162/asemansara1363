@@ -68,7 +68,7 @@ export const NewContractWizardModal: React.FC<NewContractWizardModalProps> = ({ 
     tax: '0',
   });
 
-  const currentStep = stepLabels[stepIndex].key;
+  const currentStep = stepLabels[stepIndex]!.key;
 
   const filteredCustomers = useMemo(
     () => customers.filter((c) => c.name.includes(searchCustomer) || c.phone.includes(searchCustomer)),
