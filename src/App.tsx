@@ -513,16 +513,14 @@ export function App() {
           }}
         />
 
-        <div className={`px-4 py-3 border-b ${isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-          <CloudSyncPanel
-            onSaveToCloud={saveBackupToCloudHandler}
-            onLoadFromCloud={loadBackupFromCloudHandler}
-            statusMessage={cloudSyncStatus}
-            setupHint={ensureBackupTableExistsHelp}
+        {activeSection === 'contracts' ? (
+          <ContractsView
+            contracts={contracts}
+            isDarkMode={isDarkMode}
+            onSelectContract={(c: Contract) => { setCurrentContract(c); setActiveSection('service'); }}
+            onNewContract={() => setActiveModal('new_contract')}
           />
-        </div>
-
-        {activeSection !== 'service' ? (
+        ) : activeSection !== 'service' ? (
           <div className={isDarkMode ? 'bg-slate-950 text-slate-100 flex-1 overflow-y-auto' : 'bg-slate-100 text-slate-800 flex-1 overflow-y-auto'}>
             <ManagementViews 
               section={activeSection} 
