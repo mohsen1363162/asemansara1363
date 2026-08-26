@@ -307,40 +307,6 @@ export function App() {
     reader.readAsText(file);
   };
 
-  const saveBackupToCloudHandler = async () => {
-    try {
-      const backupData: CloudBackupData = {
-        version: '1.0.0',
-        exportedAt: new Date().toISOString(),
-        isDarkMode,
-        contracts,
-        currentContractId: currentContract.id,
-        activeSection,
-        contractDataMap,
-        parts,
-      };
-      await saveBackupToSupabase(backupData);
-      setCloudSyncStatus('✅ اطلاعات با موفقیت در فضای ابری ذخیره شد. حالا روی هر دستگاه دیگری هم می‌توانید بازیابی کنید.');
-    } catch (error) {
-      console.error(error);
-      setCloudSyncStatus('❌ ذخیره ابری انجام نشد. احتمالاً جدول app_backups هنوز در Supabase ساخته نشده یا دسترسی آن کامل نیست.');
-    }
-  };
-
-  const loadBackupFromCloudHandler = async () => {
-    try {
-      const backup = await loadBackupFromSupabase();
-      if (!backup) {
-        setCloudSyncStatus('ℹ️ هنوز هیچ نسخه‌ای در فضای ابری ذخیره نشده است. اول یک بار ذخیره ابری را بزنید.');
-        return;
-      }
-      restoreBackupData(backup as AppBackupData);
-      setCloudSyncStatus('✅ اطلاعات با موفقیت از فضای ابری بازیابی شد.');
-    } catch (error) {
-      console.error(error);
-      setCloudSyncStatus('❌ بازیابی ابری انجام نشد. احتمالاً جدول app_backups هنوز ساخته نشده یا دسترسی آن کامل نیست.');
-    }
-  };
 
   const currentData = contractDataMap[currentContract.id] || {
     serviceMonths: initialServiceMonths,
