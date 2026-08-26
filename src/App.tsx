@@ -17,8 +17,8 @@ import { GenericActionModal } from './components/Modals/GenericActionModal';
 import { NewContractWizardModal } from './components/Modals/NewContractWizardModal';
 import { PartsSettingsModal } from './components/Modals/PartsSettingsModal';
 import { MonthPartsModal } from './components/Modals/MonthPartsModal';
-import { CloudSyncPanel } from './components/CloudSyncPanel';
-import { CloudBackupData, ensureBackupTableExistsHelp, loadBackupFromSupabase, saveBackupToSupabase } from './services/supabase';
+import { ContractsView } from './components/ContractsView';
+import { loadBackupFromSupabase, saveBackupToSupabase } from './services/supabase';
 
 // Initial Data
 import { 
@@ -106,7 +106,7 @@ export function App() {
   const [selectedPaymentMonth, setSelectedPaymentMonth] = useState<ServiceMonth | null>(null);
   const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<number | undefined>(undefined);
   const [genericModalData, setGenericModalData] = useState<{ title: string; type: string } | null>(null);
-  const [cloudSyncStatus, setCloudSyncStatus] = useState('');
+  const [, setCloudSyncStatus] = useState('');
   const [cloudLoaded, setCloudLoaded] = useState(false);
 
   useEffect(() => {
@@ -307,40 +307,6 @@ export function App() {
     reader.readAsText(file);
   };
 
-  const saveBackupToCloudHandler = async () => {
-    try {
-      const backupData: CloudBackupData = {
-        version: '1.0.0',
-        exportedAt: new Date().toISOString(),
-        isDarkMode,
-        contracts,
-        currentContractId: currentContract.id,
-        activeSection,
-        contractDataMap,
-        parts,
-      };
-      await saveBackupToSupabase(backupData);
-      setCloudSyncStatus('✅ اطلاعات با موفقیت در فضای ابری ذخیره شد. حالا روی هر دستگاه دیگری هم می‌توانید بازیابی کنید.');
-    } catch (error) {
-      console.error(error);
-      setCloudSyncStatus('❌ ذخیره ابری انجام نشد. احتمالاً جدول app_backups هنوز در Supabase ساخته نشده یا دسترسی آن کامل نیست.');
-    }
-  };
-
-  const loadBackupFromCloudHandler = async () => {
-    try {
-      const backup = await loadBackupFromSupabase();
-      if (!backup) {
-        setCloudSyncStatus('ℹ️ هنوز هیچ نسخه‌ای در فضای ابری ذخیره نشده است. اول یک بار ذخیره ابری را بزنید.');
-        return;
-      }
-      restoreBackupData(backup as AppBackupData);
-      setCloudSyncStatus('✅ اطلاعات با موفقیت از فضای ابری بازیابی شد.');
-    } catch (error) {
-      console.error(error);
-      setCloudSyncStatus('❌ بازیابی ابری انجام نشد. احتمالاً جدول app_backups هنوز ساخته نشده یا دسترسی آن کامل نیست.');
-    }
-  };
 
   const currentData = contractDataMap[currentContract.id] || {
     serviceMonths: initialServiceMonths,
@@ -547,16 +513,14 @@ export function App() {
           }}
         />
 
-        <div className={`px-4 py-3 border-b ${isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-          <CloudSyncPanel
-            onSaveToCloud={saveBackupToCloudHandler}
-            onLoadFromCloud={loadBackupFromCloudHandler}
-            statusMessage={cloudSyncStatus}
-            setupHint={ensureBackupTableExistsHelp}
+        {activeSection === 'contracts' ? (
+          <ContractsView
+            contracts={contracts}
+            isDarkMode={isDarkMode}
+            onSelectContract={(c: Contract) => { setCurrentContract(c); setActiveSection('service'); }}
+            onNewContract={() => setActiveModal('new_contract')}
           />
-        </div>
-
-        {activeSection !== 'service' ? (
+        ) : activeSection !== 'service' ? (
           <div className={isDarkMode ? 'bg-slate-950 text-slate-100 flex-1 overflow-y-auto' : 'bg-slate-100 text-slate-800 flex-1 overflow-y-auto'}>
             <ManagementViews 
               section={activeSection} 
