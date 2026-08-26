@@ -25,7 +25,7 @@ export default defineConfig({
     },
   },
   vite: {
-    base: process.env.VITE_BASEPATH || "/",
+    base: process.env['VITE_BASEPATH'] || "/",
     server: {
       allowedHosts: true,
     },
