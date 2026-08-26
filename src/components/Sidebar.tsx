@@ -16,6 +16,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
   const menuItems = [
+    { id: 'contracts', label: 'قراردادها', icon: FileBox },
     { id: 'installation', label: 'نصب و راه اندازی', icon: Layers },
     { id: 'service', label: 'سرویس و نگهداری', icon: Wrench },
     { id: 'cartable', label: 'کارتابل', icon: FolderKanban },
