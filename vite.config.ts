@@ -16,14 +16,6 @@ export default defineConfig({
       basepath: process.env['VITE_BASEPATH'] || undefined,
     },
   },
-  nitro: {
-    preset: "cloudflare-module",
-    output: {
-      dir: "dist",
-      serverDir: "dist/server",
-      publicDir: "dist/client",
-    },
-  },
   vite: {
     base: process.env['VITE_BASEPATH'] || "/",
     server: {
