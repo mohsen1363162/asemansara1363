@@ -13,7 +13,7 @@ export default defineConfig({
     server: { entry: "server" },
     prerender: { enabled: true },
     router: {
-      basepath: process.env.VITE_BASEPATH || undefined,
+      basepath: process.env['VITE_BASEPATH'] || undefined,
     },
   },
   nitro: {
