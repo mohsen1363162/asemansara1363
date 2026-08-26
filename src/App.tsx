@@ -106,7 +106,7 @@ export function App() {
   const [selectedPaymentMonth, setSelectedPaymentMonth] = useState<ServiceMonth | null>(null);
   const [selectedPaymentAmount, setSelectedPaymentAmount] = useState<number | undefined>(undefined);
   const [genericModalData, setGenericModalData] = useState<{ title: string; type: string } | null>(null);
-  const [cloudSyncStatus, setCloudSyncStatus] = useState('');
+  const [, setCloudSyncStatus] = useState('');
   const [cloudLoaded, setCloudLoaded] = useState(false);
 
   useEffect(() => {
