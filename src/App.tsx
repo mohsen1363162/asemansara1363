@@ -17,8 +17,8 @@ import { GenericActionModal } from './components/Modals/GenericActionModal';
 import { NewContractWizardModal } from './components/Modals/NewContractWizardModal';
 import { PartsSettingsModal } from './components/Modals/PartsSettingsModal';
 import { MonthPartsModal } from './components/Modals/MonthPartsModal';
-import { CloudSyncPanel } from './components/CloudSyncPanel';
-import { CloudBackupData, ensureBackupTableExistsHelp, loadBackupFromSupabase, saveBackupToSupabase } from './services/supabase';
+import { ContractsView } from './components/ContractsView';
+import { loadBackupFromSupabase, saveBackupToSupabase } from './services/supabase';
 
 // Initial Data
 import { 
